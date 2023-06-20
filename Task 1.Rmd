@@ -3,34 +3,32 @@ title: "Quantium Virtual Internship - Retail Strategy and Analytics - Task 1"
 mainfont: Roboto
 monofont: Consolas
 output: 
- pdf_document: 
- df_print: default
- highlight: tango
- keep_tex: no
- latex_engine: pdflatex
+  html_document: 
+    df_print: default
+    highlight: tango
 header-includes:
  \usepackage{fvextra}
  \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
 ---
 
 ```{r setup, include=FALSE}
-# set options for R markdown knitting
+#### set options for R markdown knitting
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(linewidth=80)
 options(tinytex.verbose = TRUE)
 ```
 
 ```{r knitr line wrap setup, include=FALSE}
-# set up line wrapping in MD knit output
+#### set up line wrapping in MD knit output
 library(knitr)
 hook_output = knit_hooks$get("output")
 knit_hooks$set(output = function(x, options) 
 {
- # this hook is used only when the linewidth option is not NULL
+ #### this hook is used only when the linewidth option is not NULL
  if (!is.null(n <- options$linewidth)) 
  {
  x = knitr:::split_lines(x)
- # any lines wider than n should be wrapped
+ #### any lines wider than n should be wrapped
  if (any(nchar(x) > n)) 
  x = strwrap(x, width = n)
  x = paste(x, collapse = "\n")
@@ -43,11 +41,14 @@ knit_hooks$set(output = function(x, options)
 
 This file is a solution template for the Task 1 of the Quantium Virtual Internship. It will walk you through the analysis, providing the scaffolding for your solution with gaps left for you to fill in yourself. Look for comments that say "over to you" for places where you need to add your own code! Often, there will be hints about what to do or what function to use in the text leading up to a code block - if you need a bit of extra help on how to use a function, the internet has many excellent resources on R coding, which you can find using your favourite search engine.
 
-# Load required libraries and datasets Note that you will need to install these libraries if you have never used these before.
+## Load required libraries and datasets 
 
-```{r 0 Load Libraries, results = 'hide', include=FALSE}
+Note that you will need to install these libraries if you have never used these before.
+
+```{r 0 Load Libraries, results = 'hide', warning = FALSE, message = FALSE}
 #### Example code to install packages
 #install.packages("data.table")
+
 #### Load required libraries
 library(data.table)
 library(ggplot2)
@@ -56,18 +57,19 @@ library(readr)
 library(stringr)
 library(tidyverse)
 library(arules)
+
 #### Point the filePath to where you have downloaded the datasets to and assign the data files to data.tables
 # over to you! fill in the path to your working directory. If you are on a Windows machine, you will need to use forward slashes (/) instead of backshashes (\)
-filePath <- "C:/Users/ASUS/OneDrive/Documents/R/Quantium/"
+filePath <- "D:/OneDrive/Documents/GitHub/R/"
 transactionData <- fread(paste0(filePath,"QVI_transaction_data.csv"))
 customerData <- fread(paste0(filePath,"QVI_purchase_behaviour.csv"))
 ```
 
-# Exploratory data analysis
+## Exploratory data analysis
 
 The first step in any analysis is to first understand the data. Let's take a look at each of the datasets provided.
 
-# Examining transaction data
+### Examining transaction data
 
 We can use `str()` to look at the format of each column and see a sample of the data. As we have read in the dataset as a `data.table` object, we can also run `transactionData` in the console to see a sample of the data or use `head(transactionData)` to look at the first 10 rows. Let's check if columns we would expect to be numeric are in numeric form and date columns are in date format.
 
@@ -160,6 +162,7 @@ It looks like this customer has only had the two transactions over the year and 
 #### Filter out the customer based on the loyalty card number
 # Over to you!
 transactionData <- transactionData[LYLTY_CARD_NBR != 226000, ]
+
 #### Re-examine transaction data
 # Over to you!
 summary(transactionData)
@@ -181,9 +184,11 @@ There's only 364 rows, meaning only 364 dates which indicates a missing date. Le
 dates <- data.table(seq(as.Date("2018/07/01"), as.Date("2019/06/30"), by = "day"))
 setnames(dates, "DATE")
 transactions_by_day <- merge(dates, transactionData[, .N, by = DATE], all.x = TRUE)
+
 #### Setting plot themes to format graphs
 theme_set(theme_bw())
 theme_update(plot.title = element_text(hjust = 0.5))
+
 #### Plot transactions over time
 ggplot(transactions_by_day, aes(x = DATE, y = N)) +
  geom_line() +
@@ -210,6 +215,7 @@ We can see that the increase in sales occurs in the lead-up to Christmas and tha
 #### Pack size
 #### We can work this out by taking the digits that are in PROD_NAME
 transactionData[, PACK_SIZE := parse_number(PROD_NAME)]
+
 #### Always check your output
 #### Let's check if the pack sizes look sensible 
 transactionData[, .N, PACK_SIZE][order(-N)]
@@ -230,6 +236,7 @@ Pack sizes created look reasonable. Now to create brands, we can use the first w
 #### Brands
 # Over to you! Create a column which contains the brand of the product, by extracting it from the product name.
 transactionData$BRAND <- toupper(word(transactionData$PROD_NAME, 1, 1))
+
 #### Checking brands
 # Over to you! Check the results look reasonable. 
 brandrank <- transactionData[, .N, BRAND][order(BRAND)]
@@ -249,11 +256,13 @@ transactionData[BRAND == "NCC", BRAND := "NATURAL"]
 transactionData[BRAND == "SMITH", BRAND := "SMITHS"]
 transactionData[BRAND == "SNBTS", BRAND := "SUNBITES"]
 transactionData[BRAND == "WW", BRAND := "WOOLWORTHS"]
+
 #### Check again
 # Over to you! Check the results look reasonable. 
 brandrank <- transactionData[, .N, BRAND][order(-N)]
 brandrank
 ```
+
 ```{r }
 ggplot(data = brandrank, aes(x = BRAND, y = N)) +
   geom_bar(stat = "identity", position = "dodge", fill = "lightblue") +
@@ -261,7 +270,7 @@ ggplot(data = brandrank, aes(x = BRAND, y = N)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 ```
 
-# Examining customer data
+### Examining customer data
 
 Now that we are happy with the transaction dataset, let's have a look at the customer dataset.
 
@@ -292,7 +301,7 @@ fwrite(data, paste0(filePath,"QVI_data.csv"))
 
 Data exploration is now complete!
 
-# Data analysis on customer segments
+## Data analysis on customer segments
 
 Now that the data is ready for analysis, we can define some metrics of interest to the client: - Who spends the most on chips (total sales), describing customers by lifestage and how premium their general purchasing behaviour is - How many customers are in each segment - How many chips are bought per customer by segment - What's the average chip price by customer segment We could also ask our data team for more information. Examples are: - The customer's total spend over the period and total spend for each transaction to understand what proportion of their grocery spend is on chips - Proportion of customers in each customer segment overall to compare against the mix of customers who purchase chips Let's start with calculating total sales by LIFESTAGE and PREMIUM_CUSTOMER and plotting the split by these segments to describe which customer segment contribute most to chip sales.
 
@@ -368,7 +377,7 @@ t.test(mainstreamData$PRICE_PER_UNIT, otherData$PRICE_PER_UNIT)
 
 The t-test results in a p-value of 0.00000000000000022, i.e. the unit price for mainstream, young and mid-age singles and couples ARE significantly higher than that of budget or premium, young and midage singles and couples.
 
-# Deep dive into specific customer segments for insights
+### Deep dive into specific customer segments for insights
 
 We have found quite a few interesting insights that we can dive deeper into. We might want to target customer segments that contribute the most to sales to retain them or further increase sales. Let's look at Mainstream - young singles/couples. For instance, let's find out if they tend to buy a particular brand of chips.
 
