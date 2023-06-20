@@ -1,0 +1,14 @@
+name: FirstShinyApp
+title: FirstShinyApp
+username:
+account: anterusmichael
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 9336519
+bundleId: 7365728
+url: https://anterusmichael.shinyapps.io/FirstShinyApp/
+when: 1687253709.61268
+lastSyncTime: 1687253709.61269
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: Data Plot.R|Data Table.R
