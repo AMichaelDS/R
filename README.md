@@ -1,4 +1,4 @@
-# Welcome to my R Portfolio
+## Welcome to my R portfolio!
 Here, I showcase my projects and expertise in utilizing the R programming language for various data analysis and visualization tasks. Journey through my collection of projects demonstrating my skills and passion for leveraging R to derive meaningful insights from data. 
 
 ##
